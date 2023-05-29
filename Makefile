@@ -1,7 +1,7 @@
 CC := nvcc
 CE := .cu
 HE := .hpp
-FLAGS := -lm
+FLAGS := -lm -ccbin g++ -m64 --threads 0 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_75,code=sm_75
 
 SRC_DIR := src/
 BUILD_DIR := build/
