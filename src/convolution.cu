@@ -5,14 +5,17 @@
 __global__ void par_convolution(uint32_t* image, uint32_t* kernel,
                                 uint32_t** out, uint32_t image_size,
                                 uint32_t kernel_size) {
-    uint32_t tid = image_size * blockIdx.x + threadIdx.x;
-    printf("%d %d %u\n", tid, blockIdx.x, threadIdx.x);
+    uint32_t tid = (blockDim.x * blockDim.y * gridDim.x * blockIdx.y) +
+                   (gridDim.x * blockDim.x * threadIdx.y) +
+                   (blockDim.x * blockIdx.x) + threadIdx.x;
+    printf("%d %u %u %u %u\n", tid, threadIdx.x, threadIdx.y, blockIdx.x,
+           blockIdx.y);
 }
 
 void convolution(uint8_t** image, uint32_t image_size, uint8_t** kernel,
                  uint32_t kernel_size, uint8_t*** out) {
-    dim3 block((image_size * image_size) / 4);
-    dim3 grid(4);
+    dim3 grid(4, 4);
+    dim3 block(image_size / 4, image_size / 4);
 
     uint32_t *image_in_device, *image_out_device, *kernel_device;
 
