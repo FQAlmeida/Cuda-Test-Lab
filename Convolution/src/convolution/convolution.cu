@@ -1,10 +1,12 @@
 #include <assert.h>
 #include <cuda_runtime.h>
 #include <inttypes.h>
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
 #include <iostream>
+
+#include "../alloc_image_mem/alloc_image_mem.hpp"
 
 __device__ void convolute(uint16_t* image, uint16_t* kernel, uint16_t* sum_out, uint32_t image_size,
                           uint32_t kernel_size, uint32_t x, uint32_t y, uint32_t padding, uint32_t line_size) {
@@ -78,7 +80,7 @@ void show_matrix(uint16_t* matrix, uint32_t size, uint32_t max_print) {
     }
 }
 
-int run() {
+int run_convolution() {
     uint32_t kernel_size = 100;
     uint32_t padding = (kernel_size - 1) / 2;
     uint32_t n = 10000;
@@ -87,34 +89,9 @@ int run() {
     srand(345);
     printf("STARTING CREATION\n");
 
-    uint16_t* image = (uint16_t*)malloc(sizeof(uint16_t) * image_size * image_size);
-    printf("END ALLOC\n");
-    for (uint32_t i = 0; i < image_size; i++) {
-        for (uint32_t j = 0; j < image_size; j++) {
-            image[i + j * image_size] = (uint16_t)(i + 1);
-        }
-    }
-    for (uint32_t i = 0; i < image_size; i++) {
-        image[i] = 0;
-        image[image_size * (image_size - 1) + i] = 0;
-        image[image_size * i] = 0;
-        image[image_size * i + (image_size - 1)] = 0;
-    }
-    printf("END CREATION\n");
-
-    uint16_t* image_out = (uint16_t*)malloc(sizeof(uint16_t) * image_size * image_size);
-    printf("END ALLOC\n");
-    for (uint32_t i = 0; i < image_size * image_size; i++) {
-        image_out[i] = 0;
-    }
-
-    uint16_t* kernel = (uint16_t*)malloc(sizeof(uint16_t*) * kernel_size * kernel_size);
-    for (uint32_t i = 0; i < kernel_size; i++) {
-        // kernel[i] = (uint16_t*)malloc(sizeof(uint16_t) * kernel_size);
-        for (uint32_t j = 0; j < kernel_size; j++) {
-            kernel[i + j * kernel_size] = 1;
-        }
-    }
+    uint16_t* image = alloc_image(image_size);
+    uint16_t* image_out = alloc_image_out(image_size);
+    uint16_t* kernel = alloc_kernel(kernel_size);
 
     printf("STARTING CONV\n");
     convolution(image, image_size, kernel, kernel_size, image_out);

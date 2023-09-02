@@ -9,7 +9,7 @@ find_package(CUDAToolkit REQUIRED)
 file(
   GLOB SRC_FILES
   CONFIGURE_DEPENDS
-  "src/**/*.[hc]pp"
+  "src/**/*.cpp"
 )
 
 file(
@@ -18,12 +18,21 @@ file(
   "src/**/*.cu"
 )
 
-add_library(ConvolutionLib src/convolution.cu)
+file(
+  GLOB SRC_IMAGE_ALLOC
+  CONFIGURE_DEPENDS
+  "src/alloc_image_mem/**/*.cpp"
+)
+
+add_library(ConvolutionLib src/convolution/convolution.cu src/convolution/convolution.hpp)
+target_sources(ConvolutionLib PUBLIC ${SRC_IMAGE_ALLOC})
+target_sources(ConvolutionLib PUBLIC ${SRC_FILES_CUDA})
+target_link_libraries(ConvolutionLib CUDA::cudart)
 
 add_executable(Convolution src/main.cpp)
 target_link_libraries(Convolution CUDA::cudart)
 target_link_libraries(Convolution ConvolutionLib)
-# target_sources(Convolution PUBLIC ${SRC_FILES_CUDA})
+target_sources(Convolution PUBLIC ${SRC_FILES_CUDA})
 target_sources(Convolution PUBLIC ${SRC_FILES})
 include_directories(${Thread-Pool_SOURCE_DIR})
 target_link_libraries(Convolution Thread-Pool)

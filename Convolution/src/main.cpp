@@ -1,10 +1,6 @@
-#include "../../Thread-Pool/src/thread-pool.hpp"
-#include "convolution.hpp"
+#include "convolution/convolution.hpp"
 
-int main(int argc, char const *argv[])
-{
-    test_func();
-    run();
+int main(int argc, char const *argv[]) {
+    run_convolution();
     return 0;
 }
-
