@@ -78,7 +78,7 @@ void show_matrix(uint16_t* matrix, uint32_t size, uint32_t max_print) {
     }
 }
 
-int main(int argc, char const* argv[]) {
+int run() {
     uint32_t kernel_size = 100;
     uint32_t padding = (kernel_size - 1) / 2;
     uint32_t n = 10000;
