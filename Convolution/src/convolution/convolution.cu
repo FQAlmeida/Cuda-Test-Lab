@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "../alloc_image_mem/alloc_image_mem.hpp"
+#include "convolution.cuh"
 
 __device__ void convolute(uint16_t* image, uint16_t* kernel, uint16_t* sum_out, uint32_t image_size,
                           uint32_t kernel_size, uint32_t x, uint32_t y, uint32_t padding, uint32_t line_size) {
@@ -58,12 +59,14 @@ void convolution(uint16_t* image, uint32_t image_size, uint16_t* kernel, uint32_
     cudaMalloc(&kernel_device, sizeof(uint16_t) * kernel_size * kernel_size);
     cudaError err =
         cudaMemcpy(kernel_device, kernel, kernel_size * kernel_size * sizeof(uint16_t), cudaMemcpyHostToDevice);
-
-    for (size_t i = 0; i < 100000; i++) {
-        for (size_t j = 0; j < 10000; j++) {
+    printf("STARTING CONV LOOP\n");
+    cudaDeviceSynchronize();
+    for (size_t i = 0; i < 10000; i++) {
+        for (size_t j = 0; j < 1000; j++) {
             par_convolution<<<grid, block>>>(image_in_device, kernel_device, image_out_device, image_size, kernel_size);
         }
     }
+    printf("END CONV LOOP\n");
     cudaDeviceSynchronize();
 
     cudaMemcpy(out, image_out_device, image_size * image_size * sizeof(uint16_t), cudaMemcpyDeviceToHost);
