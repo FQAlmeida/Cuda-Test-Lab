@@ -20,6 +20,7 @@ __device__ void convolute(uint16_t* image, uint16_t* kernel, uint16_t* sum_out, 
             *sum_out += pixel * kernel_pixel;
         }
     }
+    printf("Called\n");
 }
 
 __global__ void par_convolution(uint16_t* image, uint16_t* kernel, uint16_t* out, uint32_t image_size,
@@ -36,8 +37,20 @@ __global__ void par_convolution(uint16_t* image, uint16_t* kernel, uint16_t* out
     uint16_t sum = 0;
     convolute(image, kernel, &sum, image_size, kernel_size, x, y, padding, line_size);
     assert(sum > 0);
+    printf("%d\n", sum);
     out[tid] = sum / (uint16_t)(kernel_size * kernel_size);
     assert(*(out + tid) == sum / (uint16_t)(kernel_size * kernel_size));
+    assert(*(out + tid) != *(image + tid));
+    __syncthreads();
+}
+
+__global__ void checker(uint16_t* image, uint16_t* image_out, uint32_t image_size) {
+    for (size_t i = 1; i < image_size - 1; i++) {
+        for (size_t j = 1; j < image_size - 1; j++) {
+            assert(image[i + j * image_size] != image_out[i + j * image_size]);
+            printf("%d %d\n",image[i + j * image_size], image_out[i + j * image_size]);
+        }
+    }
 }
 
 void convolution(uint16_t* image, uint32_t image_size, uint16_t* kernel, uint32_t kernel_size, uint16_t* out) {
@@ -46,8 +59,8 @@ void convolution(uint16_t* image, uint32_t image_size, uint16_t* kernel, uint32_
     // TODO(Otavio): Create a better logic for grid and block dims size
     // Make it in a way that (image_size - 2 * padding) is ways divisible
     // Aka, all convuluted pixels should be processed, no more no less
-    dim3 grid(4, 4);
-    dim3 block((image_size - 2 * padding) / 4, (image_size - 2 * padding) / 4);
+    dim3 grid(32, 32);
+    dim3 block((image_size - 2 * padding) / 32, (image_size - 2 * padding) / 32);
 
     uint16_t *image_in_device, *image_out_device, *kernel_device;
 
@@ -55,18 +68,23 @@ void convolution(uint16_t* image, uint32_t image_size, uint16_t* kernel, uint32_
     cudaMemcpy(image_in_device, image, image_size * image_size * sizeof(uint16_t), cudaMemcpyHostToDevice);
 
     cudaMalloc(&image_out_device, sizeof(uint16_t) * image_size * image_size);
-    cudaMemcpy(image_out_device, image_in_device, image_size * image_size * sizeof(uint16_t), cudaMemcpyDeviceToDevice);
+    // cudaMemcpy(image_out_device, image_in_device, image_size * image_size * sizeof(uint16_t),
+    // cudaMemcpyDeviceToDevice);
     cudaMalloc(&kernel_device, sizeof(uint16_t) * kernel_size * kernel_size);
     cudaError err =
         cudaMemcpy(kernel_device, kernel, kernel_size * kernel_size * sizeof(uint16_t), cudaMemcpyHostToDevice);
     printf("STARTING CONV LOOP\n");
     cudaDeviceSynchronize();
-    for (size_t i = 0; i < 10000; i++) {
-        for (size_t j = 0; j < 1000; j++) {
-            par_convolution<<<grid, block>>>(image_in_device, kernel_device, image_out_device, image_size, kernel_size);
-        }
-    }
+    // for (size_t i = 0; i < 10000; i++) {
+    //     for (size_t j = 0; j < 1000; j++) {
+    par_convolution<<<grid, block>>>(image_in_device, kernel_device, image_out_device, image_size, kernel_size);
+
+    //     }
+    // }
+    cudaDeviceSynchronize();
     printf("END CONV LOOP\n");
+
+    checker<<<1, 1>>>(image_in_device, image_out_device, image_size);
     cudaDeviceSynchronize();
 
     cudaMemcpy(out, image_out_device, image_size * image_size * sizeof(uint16_t), cudaMemcpyDeviceToHost);
@@ -100,6 +118,7 @@ int run_convolution() {
     convolution(image, image_size, kernel, kernel_size, image_out);
     printf("END CONV\n");
 
+    show_matrix(image, image_size, 15);
     show_matrix(image_out, image_size, 15);
 
     free(image);

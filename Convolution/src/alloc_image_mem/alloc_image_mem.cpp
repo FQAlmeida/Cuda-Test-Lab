@@ -1,8 +1,12 @@
 #include "alloc_image_mem.hpp"
 
+#include <functional>
+#include <random>
 #include <ranges>
 
 #include "../../../Thread-Pool/src/thread-pool.hpp"
+
+unsigned int seed = 435;
 
 uint16_t* alloc_image(uint32_t image_size) {
     uint16_t* image = (uint16_t*)malloc(sizeof(uint16_t) * image_size * image_size);
@@ -13,14 +17,18 @@ uint16_t* alloc_image(uint32_t image_size) {
     uint32_t idx_end = image_size;
     uint32_t qtd_items = (image_size * image_size) / (idx_end - idx_start);
     auto range = std::ranges::iota_view{idx_start, idx_end};
+    std::uniform_int_distribution distribution(idx_start, idx_end);
+    std::mt19937 random_number_engine;  // pseudorandom number generator
+    auto random_number = std::bind(distribution, random_number_engine);
+
     threads.map_jobs(
-        [image, image_size, qtd_items](auto idx) {
+        [image, image_size, qtd_items, random_number](auto idx) {
             uint32_t i_begin = (qtd_items * idx) / image_size;
             uint32_t i_end = i_begin + (qtd_items / image_size);
 
             for (uint32_t i = i_begin; i < i_end; i++) {
                 for (uint32_t j = 0; j < image_size; j++) {
-                    image[i + j * image_size] = (uint16_t)(i + 1);
+                    image[i + j * image_size] = rand_r(&seed);
                 }
             }
         },
