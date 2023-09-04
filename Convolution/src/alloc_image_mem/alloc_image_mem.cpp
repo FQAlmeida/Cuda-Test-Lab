@@ -8,8 +8,8 @@
 
 unsigned int seed = 435;
 
-uint16_t* alloc_image(uint32_t image_size) {
-    uint16_t* image = (uint16_t*)malloc(sizeof(uint16_t) * image_size * image_size);
+float* alloc_image(uint32_t image_size) {
+    float* image = (float*)malloc(sizeof(float) * image_size * image_size);
     printf("END ALLOC IMAGE\n");
     ThreadPool threads = ThreadPool{};
 
@@ -28,7 +28,7 @@ uint16_t* alloc_image(uint32_t image_size) {
 
             for (uint32_t i = i_begin; i < i_end; i++) {
                 for (uint32_t j = 0; j < image_size; j++) {
-                    image[i + j * image_size] = rand_r(&seed);
+                    image[i + j * image_size] = (float)rand_r(&seed) / (float)RAND_MAX;
                 }
             }
         },
@@ -41,10 +41,10 @@ uint16_t* alloc_image(uint32_t image_size) {
             uint32_t i_end = i_begin + (qtd_items / image_size);
 
             for (uint32_t i = i_begin; i < i_end; i++) {
-                image[i] = 0;
-                image[image_size * (image_size - 1) + i] = 0;
-                image[image_size * i] = 0;
-                image[image_size * i + (image_size - 1)] = 0;
+                image[i] = 0.0;
+                image[image_size * (image_size - 1) + i] = 0.0;
+                image[image_size * i] = 0.0;
+                image[image_size * i + (image_size - 1)] = 0.0;
             }
         },
         range_border);
@@ -56,8 +56,8 @@ uint16_t* alloc_image(uint32_t image_size) {
     return image;
 }
 
-uint16_t* alloc_image_out(uint32_t image_size) {
-    uint16_t* image_out = (uint16_t*)calloc(image_size * image_size, sizeof(uint16_t));
+float* alloc_image_out(uint32_t image_size) {
+    float* image_out = (float*)calloc(image_size * image_size, sizeof(float));
     printf("END ALLOC IMAGE OUT\n");
     // for (uint32_t i = 0; i < image_size * image_size; i++) {
     //     image_out[i] = 0;
@@ -65,8 +65,8 @@ uint16_t* alloc_image_out(uint32_t image_size) {
     return image_out;
 }
 
-uint16_t* alloc_kernel(uint32_t kernel_size) {
-    uint16_t* kernel = (uint16_t*)malloc(sizeof(uint16_t*) * kernel_size * kernel_size);
+float* alloc_kernel(uint32_t kernel_size) {
+    float* kernel = (float*)malloc(sizeof(float*) * kernel_size * kernel_size);
     printf("END ALLOC KERNEL\n");
     ThreadPool threads = ThreadPool{};
 
@@ -81,7 +81,7 @@ uint16_t* alloc_kernel(uint32_t kernel_size) {
 
             for (uint32_t i = i_begin; i < i_end; i++) {
                 for (uint32_t j = 0; j < kernel_size; j++) {
-                    kernel[i + j * kernel_size] = 1;
+                    kernel[i + j * kernel_size] = 1.0;
                 }
             }
         },

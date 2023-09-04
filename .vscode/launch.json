@@ -5,12 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CUDA C++: Launch",
+            "name": "Convolution CUDA C++: Launch",
             "type": "cuda-gdb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/main",
+            "program": "${workspaceFolder}/build/Convolution/Convolution",
             "breakOnLaunch": true,
-            "debuggerPath": "/usr/local/cuda-12.2/bin/cuda-gdb"
+            // "debuggerPath": "/usr/local/cuda-12.2/bin/cuda-gdb"
         },
         {
             "name": "CUDA C++: Attach",

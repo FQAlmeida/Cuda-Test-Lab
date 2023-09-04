@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(
-    Convolution
+    Vector-Add
 )
 
 set(CXX_STANDARD 20)
@@ -11,8 +11,6 @@ set(C_STANDARD_REQUIRED On)
 set(CUDA_EXTENSIONS On)
 set(CUDA_STANDARD 20)
 set(CUDA_STANDARD_REQUIRED On)
-
-set(CMAKE_BUILD_TYPE Debug)
 
 # set_property(TARGET target PROPERTY CXX_STANDARD 17)
 # set_property(TARGET target PROPERTY CXX_STANDARD_REQUIRED On)
@@ -37,30 +35,30 @@ file(
 file(
   GLOB SRC_IMAGE_ALLOC
   CONFIGURE_DEPENDS
-  "src/alloc_image_mem/**/*.cpp"
+  "src/alloc_vector_mem/**/*.cpp"
 )
 
-add_library(ConvolutionLib src/convolution/convolution.cu src/convolution/convolution.cuh)
-target_sources(ConvolutionLib PUBLIC ${SRC_IMAGE_ALLOC})
-target_sources(ConvolutionLib PUBLIC ${SRC_FILES_CUDA})
+add_library(Vector-AddLib src/vector_add/vector_add.cu src/vector_add/vector_add.cuh)
+target_sources(Vector-AddLib PUBLIC ${SRC_IMAGE_ALLOC})
+target_sources(Vector-AddLib PUBLIC ${SRC_FILES_CUDA})
 include_directories(${Thread-Pool_SOURCE_DIR})
-target_link_libraries(ConvolutionLib Thread-Pool)
-target_link_libraries(ConvolutionLib CUDA::cudart)
-set_target_properties(ConvolutionLib PROPERTIES 
+target_link_libraries(Vector-AddLib Thread-Pool)
+target_link_libraries(Vector-AddLib CUDA::cudart)
+set_target_properties(Vector-AddLib PROPERTIES 
   CXX_STANDARD 20  
   CXX_STANDARD_REQUIRED On 
   CUDA_STANDARD 17
   CUDA_STANDARD_REQUIRED On
-  CUDA_ARCHITECTURES "50;52;53;60;61;70;75;80;86;89;90"
+  CUDA_ARCHITECTURES "52;60;61;70;75;80;86"
 )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
-add_executable(Convolution src/main.cpp)
-target_link_libraries(Convolution CUDA::cudart)
-target_link_libraries(Convolution ConvolutionLib)
-target_sources(Convolution PUBLIC ${SRC_FILES_CUDA})
-target_sources(Convolution PUBLIC ${SRC_FILES})
+add_executable(Vector-Add src/main.cpp)
+target_link_libraries(Vector-Add CUDA::cudart)
+target_link_libraries(Vector-Add Vector-AddLib)
+target_sources(Vector-Add PUBLIC ${SRC_FILES_CUDA})
+target_sources(Vector-Add PUBLIC ${SRC_FILES})
 include_directories(${Thread-Pool_SOURCE_DIR})
-target_link_libraries(Convolution Thread-Pool)
+target_link_libraries(Vector-Add Thread-Pool)
 
 install(TARGETS Convolution DESTINATION Convolution)

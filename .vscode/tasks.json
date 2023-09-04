@@ -2,11 +2,11 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "echo",
+			"label": "Convolution",
 			"type": "shell",
 			"command": "make",
 			"problemMatcher": [
-				"$nvcc"
+				"$nvcc",
 			],
 			"group": {
 				"kind": "build",
