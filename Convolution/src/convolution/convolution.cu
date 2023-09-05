@@ -21,7 +21,6 @@ __device__ void convolute(float* image, float* kernel, float* sum_out, uint32_t 
             *sum_out += pixel * kernel_pixel;
         }
     }
-    printf("Called\n");
 }
 
 __global__ void par_convolution(float* image, float* kernel, float* out, uint32_t image_size, uint32_t kernel_size) {
@@ -34,24 +33,20 @@ __global__ void par_convolution(float* image, float* kernel, float* out, uint32_
 
     uint32_t tid = x + (y * line_size);
 
-    printf("%d %d %d\n", tid, x, y);
+    // printf("%d %d %d\n", tid, x, y);
 
     float sum = 0;
-    // convolute(image, kernel, &sum, image_size, kernel_size, x, y, padding, line_size);
+    convolute(image, kernel, &sum, image_size, kernel_size, x, y, padding, line_size);
     assert(sum > 0);
-    printf("%f\n", sum);
-    // out[tid] = sum / (float)(kernel_size * kernel_size);
-    out[tid] = 1;
-    assert(*(out + tid) == sum / (float)(kernel_size * kernel_size));
-    assert(*(out + tid) != *(image + tid));
-    // __syncthreads();
+    // printf("%f\n", sum);
+    out[tid] = sum / (float)(kernel_size * kernel_size);
 }
 
 __global__ void checker(float* image, float* image_out, uint32_t image_size) {
     for (size_t i = 1; i < image_size - 1; i++) {
         for (size_t j = 1; j < image_size - 1; j++) {
             assert(image[i + j * image_size] != image_out[i + j * image_size]);
-            printf("%f %f\n", image[i + j * image_size], image_out[i + j * image_size]);
+            // printf("%f %f\n", image[i + j * image_size], image_out[i + j * image_size]);
         }
     }
 }
@@ -63,6 +58,7 @@ void convolution(float* image, uint32_t image_size, float* kernel, uint32_t kern
     // Aka, all convuluted pixels should be processed, no more no less
     dim3 grid(32, 32);
     dim3 block((image_size - 2 * padding) / 32, (image_size - 2 * padding) / 32);
+    printf("Thread Block Size: %d %d\n", (image_size - 2 * padding) / 32, (image_size - 2 * padding) / 32);
 
     float *image_in_device, *image_out_device, *kernel_device;
 
@@ -105,11 +101,27 @@ void show_matrix(float* matrix, uint32_t size, uint32_t max_print) {
     }
 }
 
+void save_matrix(float* matrix, uint32_t size, uint32_t max_print, const char* filename) {
+    FILE* fptr;
+    fptr = fopen(filename, "w+");
+    if (fptr == NULL) {
+        printf("Error while opening file %s!\n", filename);
+        exit(1);
+    }
+    for (uint32_t i = 0; i < min(size, max_print); i++) {
+        for (uint32_t j = 0; j < min(size, max_print); j++) {
+            fprintf(fptr, "%.2f\t|", matrix[i + j * size]);
+        }
+        fputc('\n', fptr);
+    }
+    fclose(fptr);
+}
+
 int run_convolution() {
-    uint32_t kernel_size = 100;
+    uint32_t kernel_size = 3;
     uint32_t padding = (kernel_size - 1) / 2;
-    uint32_t n = 100;
-    uint32_t image_size = 4 * n + 2 * padding;
+    uint32_t n = 32;
+    uint32_t image_size = 32 * n + 2 * padding;
 
     srand(345);
     printf("STARTING CREATION\n");
@@ -118,12 +130,16 @@ int run_convolution() {
     float* image_out = alloc_image_out(image_size);
     float* kernel = alloc_kernel(kernel_size);
 
+    save_matrix(image, image_size, image_size, "data/convolution_matrix.txt");
     printf("STARTING CONV\n");
     convolution(image, image_size, kernel, kernel_size, image_out);
     printf("END CONV\n");
 
     show_matrix(image, image_size, 15);
+    printf("----------------------------------------------\n");
     show_matrix(image_out, image_size, 15);
+
+    save_matrix(image_out, image_size, image_size, "data/convolution_matrix_out.txt");
 
     free(image);
     free(image_out);
