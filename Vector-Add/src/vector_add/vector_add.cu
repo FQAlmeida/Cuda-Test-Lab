@@ -13,7 +13,7 @@ __global__ void vector_add(float* vector_a, float* vector_b, float* vector_out, 
     uint32_t tid = threadIdx.x + blockIdx.x * blockDim.x;
     if (tid < vector_size) {
         vector_out[tid] = vector_a[tid] + vector_b[tid] + 0.0f;
-        printf("%d %.2f\n",tid, vector_out[tid]);
+        // printf("%d %.2f\n",tid, vector_out[tid]);
     }
 }
 
@@ -56,4 +56,5 @@ void run_vector_add() {
         //        vector_c[i] - vector_a[i] - vector_b[i]);
         assert(fabs(vector_c[i] - vector_a[i] - vector_b[i]) < 1e-5);
     }
+    printf("Process Done!\n");
 }
