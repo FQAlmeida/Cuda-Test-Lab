@@ -40,6 +40,7 @@ __global__ void par_convolution(float* image, float* kernel, float* out, uint32_
     assert(sum > 0);
     // printf("%f\n", sum);
     out[tid] = sum / (float)(kernel_size * kernel_size);
+    __syncthreads();
 }
 
 __global__ void checker(float* image, float* image_out, uint32_t image_size) {
@@ -72,12 +73,12 @@ void convolution(float* image, uint32_t image_size, float* kernel, uint32_t kern
     gpuErrchk(cudaMemcpy(kernel_device, kernel, kernel_size * kernel_size * sizeof(float), cudaMemcpyHostToDevice));
     printf("STARTING CONV LOOP\n");
 
-    // for (size_t i = 0; i < 10000; i++) {
-    //     for (size_t j = 0; j < 1000; j++) {
-    par_convolution<<<grid, block>>>(image_in_device, kernel_device, image_out_device, image_size, kernel_size);
-    gpuErrchk(cudaGetLastError());
-    //     }
-    // }
+    for (size_t i = 0; i < 10000; i++) {
+        for (size_t j = 0; j < 10; j++) {
+            par_convolution<<<grid, block>>>(image_in_device, kernel_device, image_out_device, image_size, kernel_size);
+            gpuErrchk(cudaGetLastError());
+        }
+    }
 
     gpuErrchk(cudaDeviceSynchronize());
     printf("END CONV LOOP\n");
