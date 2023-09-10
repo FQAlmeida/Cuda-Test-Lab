@@ -4,20 +4,6 @@ project(
     Convolution
 )
 
-set(CXX_STANDARD 20)
-set(CXX_STANDARD_REQUIRED On)
-set(C_STANDARD 17)
-set(C_STANDARD_REQUIRED On)
-set(CUDA_EXTENSIONS On)
-set(CUDA_STANDARD 20)
-set(CUDA_STANDARD_REQUIRED On)
-
-set(CMAKE_BUILD_TYPE Debug)
-
-# set_property(TARGET target PROPERTY CXX_STANDARD 17)
-# set_property(TARGET target PROPERTY CXX_STANDARD_REQUIRED On)
-
-
 enable_language(CUDA)
 enable_language(CXX)
 find_package(CUDAToolkit REQUIRED)
@@ -46,14 +32,6 @@ target_sources(ConvolutionLib PUBLIC ${SRC_FILES_CUDA})
 include_directories(${Thread-Pool_SOURCE_DIR})
 target_link_libraries(ConvolutionLib Thread-Pool)
 target_link_libraries(ConvolutionLib CUDA::cudart)
-set_target_properties(ConvolutionLib PROPERTIES 
-  CXX_STANDARD 20  
-  CXX_STANDARD_REQUIRED On 
-  CUDA_STANDARD 17
-  CUDA_STANDARD_REQUIRED On
-  CUDA_ARCHITECTURES "50;52;53;60;61;70;75;80;86;89;90"
-)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 add_executable(Convolution src/main.cpp)
 target_link_libraries(Convolution CUDA::cudart)

@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "../alloc_image_mem/alloc_image_mem.hpp"
+#include "../../../Thread-Pool/src/thread-pool.hpp"
 #include "convolution.cuh"
 #include "cuda_common.cuh"
 
@@ -54,6 +55,7 @@ __global__ void checker(float* image, float* image_out, uint32_t image_size) {
 
 void convolution(float* image, uint32_t image_size, float* kernel, uint32_t kernel_size, float* out) {
     uint32_t padding = (kernel_size - 1) / 2;
+    ThreadPool threads = ThreadPool{};
     // TODO(Otavio): Create a better logic for grid and block dims size
     // Make it in a way that (image_size - 2 * padding) is ways divisible
     // Aka, all convuluted pixels should be processed, no more no less
@@ -77,15 +79,17 @@ void convolution(float* image, uint32_t image_size, float* kernel, uint32_t kern
         for (size_t j = 0; j < 10; j++) {
             par_convolution<<<grid, block>>>(image_in_device, kernel_device, image_out_device, image_size, kernel_size);
             gpuErrchk(cudaGetLastError());
+            gpuErrchk(cudaMemcpy(image_in_device, image_out_device, sizeof(float) * image_size * image_size,
+                                 cudaMemcpyDeviceToDevice));
         }
     }
 
     gpuErrchk(cudaDeviceSynchronize());
     printf("END CONV LOOP\n");
 
-    checker<<<1, 1>>>(image_in_device, image_out_device, image_size);
-    gpuErrchk(cudaGetLastError());
-    gpuErrchk(cudaDeviceSynchronize());
+    // checker<<<1, 1>>>(image_in_device, image_out_device, image_size);
+    // gpuErrchk(cudaGetLastError());
+    // gpuErrchk(cudaDeviceSynchronize());
 
     gpuErrchk(cudaMemcpy(out, image_out_device, image_size * image_size * sizeof(float), cudaMemcpyDeviceToHost));
 
