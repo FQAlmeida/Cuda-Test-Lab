@@ -41,11 +41,15 @@ float* alloc_image(uint32_t image_size) {
             uint32_t i_end = i_begin + (qtd_items / image_size);
 
             for (uint32_t i = i_begin; i < i_end; i++) {
-                image[i] = 0.0;
-                image[image_size * (image_size - 1) + i] = 0.0;
-                image[image_size * i] = 0.0;
-                image[image_size * i + (image_size - 1)] = 0.0;
+                image[i] = image[i + image_size];
+                image[image_size * (image_size - 1) + i] = image[image_size * (image_size - 2) + i];
+                image[image_size * i] = image_size * i + 1;
+                image[image_size * i + (image_size - 1)] = image[image_size * i + (image_size - 2)];
             }
+            image[0] = image[image_size + 1];
+            image[image_size - 1] = image[2 * (image_size - 1)];
+            image[image_size * (image_size - 1)] = image[image_size * (image_size - 2) + 1];
+            image[image_size * image_size - 1] = image[image_size * (image_size - 3)];
         },
         range_border);
 

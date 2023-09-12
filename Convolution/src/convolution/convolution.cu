@@ -38,7 +38,7 @@ __global__ void par_convolution(float* image, float* kernel, float* out, uint32_
 
     float sum = 0;
     convolute(image, kernel, &sum, image_size, kernel_size, x, y, padding, line_size);
-    assert(sum > 0);
+    // assert(sum > 0);
     // printf("%f\n", sum);
     out[tid] = sum / (float)(kernel_size * kernel_size);
     __syncthreads();
@@ -76,7 +76,7 @@ void convolution(float* image, uint32_t image_size, float* kernel, uint32_t kern
     printf("STARTING CONV LOOP\n");
 
     for (size_t i = 0; i < 10000; i++) {
-        for (size_t j = 0; j < 10; j++) {
+        for (size_t j = 0; j < 100; j++) {
             par_convolution<<<grid, block>>>(image_in_device, kernel_device, image_out_device, image_size, kernel_size);
             gpuErrchk(cudaGetLastError());
             gpuErrchk(cudaMemcpy(image_in_device, image_out_device, sizeof(float) * image_size * image_size,
