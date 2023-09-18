@@ -2,11 +2,10 @@
 
 #include <stdio.h>
 
-void test_func() { printf("Test func\n"); }
 
 void ThreadPool::start() {
     // Max # of threads the system supports
-    const uint32_t num_threads = std::thread::hardware_concurrency();
+    const uint32_t num_threads = std::max((int32_t)std::thread::hardware_concurrency() - 2, 1);
     for (uint32_t ii = 0; ii < num_threads; ++ii) {
         threads.emplace_back(std::thread(&ThreadPool::thread_loop, this));
     }
@@ -28,13 +27,15 @@ void ThreadPool::thread_loop() {
     }
 }
 
-void ThreadPool::map_jobs(const std::function<void(uint32_t idx)>& job, std::ranges::iota_view<uint32_t, uint32_t> iter) {
+void ThreadPool::map_jobs(const std::function<void(uint32_t idx)>& job,
+                          std::ranges::iota_view<uint32_t, uint32_t> iter) {
     for (auto element : iter) {
         this->queue_job([element, job] { job(element); });
     }
 }
 
-// void ThreadPool::map_jobs<uint32_t>(const std::function<void(uint32_t idx)>& job, std::ranges::iota_view<uint32_t, uint32_t> iter);
+// void ThreadPool::map_jobs<uint32_t>(const std::function<void(uint32_t idx)>& job, std::ranges::iota_view<uint32_t,
+// uint32_t> iter);
 
 void ThreadPool::queue_job(const std::function<void()>& job) {
     {
@@ -54,7 +55,8 @@ bool ThreadPool::busy() {
 }
 
 void ThreadPool::wait() {
-    while (this->busy()) ;
+    while (this->busy())
+        ;
     this->stop();
 }
 

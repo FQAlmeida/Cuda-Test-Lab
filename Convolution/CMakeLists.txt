@@ -15,6 +15,12 @@ file(
 )
 
 file(
+  GLOB HEADER_FILES
+  CONFIGURE_DEPENDS
+  "src/**/*.hpp"
+)
+
+file(
   GLOB SRC_FILES_CUDA
   CONFIGURE_DEPENDS
   "src/**/*.cu"
@@ -28,17 +34,19 @@ file(
 
 add_library(ConvolutionLib src/convolution/convolution.cu src/convolution/convolution.cuh)
 target_sources(ConvolutionLib PUBLIC ${SRC_IMAGE_ALLOC})
-target_sources(ConvolutionLib PUBLIC ${SRC_FILES_CUDA})
+target_sources(ConvolutionLib PUBLIC ${SRC_FILES_CUDA} ${HEADER_FILES})
 include_directories(${Thread-Pool_SOURCE_DIR})
 target_link_libraries(ConvolutionLib Thread-Pool)
 target_link_libraries(ConvolutionLib CUDA::cudart)
+target_link_libraries(ConvolutionLib benchmark::benchmark)
 
 add_executable(Convolution src/main.cpp)
 target_link_libraries(Convolution CUDA::cudart)
 target_link_libraries(Convolution ConvolutionLib)
 target_sources(Convolution PUBLIC ${SRC_FILES_CUDA})
-target_sources(Convolution PUBLIC ${SRC_FILES})
+target_sources(Convolution PUBLIC ${SRC_FILES} ${HEADER_FILES})
 include_directories(${Thread-Pool_SOURCE_DIR})
 target_link_libraries(Convolution Thread-Pool)
+target_link_libraries(Convolution benchmark::benchmark)
 
 install(TARGETS Convolution DESTINATION Convolution)

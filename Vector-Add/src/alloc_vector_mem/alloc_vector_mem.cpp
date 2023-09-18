@@ -10,7 +10,6 @@ unsigned int seed = 435;
 
 float* alloc_vector(uint32_t vector_size) {
     float* vector = (float*)malloc(sizeof(float) * vector_size);
-    printf("END ALLOC VECTOR\n");
     ThreadPool threads = ThreadPool{};
 
     uint32_t idx_start = 0;
@@ -39,6 +38,5 @@ float* alloc_vector(uint32_t vector_size) {
     threads.start();
     threads.wait();
 
-    printf("END THREAD POOL VECTOR\n");
     return vector;
 }

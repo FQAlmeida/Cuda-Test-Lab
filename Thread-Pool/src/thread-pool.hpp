@@ -8,8 +8,6 @@
 #include <ranges>
 #include <thread>
 
-void test_func();
-
 class ThreadPool {
    public:
     void start();

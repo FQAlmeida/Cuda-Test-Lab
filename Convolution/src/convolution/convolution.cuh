@@ -1,3 +1,5 @@
 #pragma once
 
-int run_convolution();
+#include <inttypes.h>
+
+int run_convolution(uint32_t n);

@@ -18,9 +18,4 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
     }
 }
 
-__global__ void scan_efficient_1G(int* input, int* auxiliry_array, int input_size);
-__global__ void scan_summation(int* input, int* auxiliry_array, int input_size);
-
 #endif  // !CUDA_COMMON_H
-
-// void query_device();

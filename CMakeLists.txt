@@ -2,11 +2,16 @@ cmake_minimum_required(VERSION 3.21)
 
 project(Cuda-Test-Lab)
 
+find_package(benchmark REQUIRED)
+
 set(CXX_STANDARD 20)
 set(C_STANDARD 17)
 
 set(CMAKE_BUILD_TYPE Debug)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --threads 0")
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -m64")
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -ccbin g++")
