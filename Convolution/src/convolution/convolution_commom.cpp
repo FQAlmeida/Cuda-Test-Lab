@@ -21,7 +21,7 @@ void save_matrix(float* matrix, uint32_t size, uint32_t max_print, const char* f
     }
     for (uint32_t i = 0; i < std::min(size, max_print); i++) {
         for (uint32_t j = 0; j < std::min(size, max_print); j++) {
-            fprintf(fptr, "%.2f\t|", matrix[j + i * size]);
+            fprintf(fptr, "%f\t|", matrix[j + i * size]);
         }
         fputc('\n', fptr);
     }

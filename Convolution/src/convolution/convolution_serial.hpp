@@ -2,5 +2,5 @@
 
 #include <inttypes.h>
 
-uint32_t run_convolution_serial(uint32_t n) ;
+float* run_convolution_serial(uint32_t n, uint32_t qtd_loops) ;
 

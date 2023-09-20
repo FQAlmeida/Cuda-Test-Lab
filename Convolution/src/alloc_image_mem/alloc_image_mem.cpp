@@ -26,7 +26,7 @@ float* alloc_image(uint32_t image_size) {
 
             for (uint32_t i = i_begin; i < i_end; i++) {
                 for (uint32_t j = 0; j < image_size; j++) {
-                    image[j + i * image_size] = (float)rand_r(&seed) / (float)RAND_MAX;
+                    image[j + i * image_size] = 1.0 - ((float)(j + i * image_size) / (float)(image_size * image_size));
                 }
             }
         },

@@ -2,4 +2,4 @@
 
 #include <inttypes.h>
 
-int run_convolution(uint32_t n);
+float* run_convolution(uint32_t n, uint32_t qtd_loops);
