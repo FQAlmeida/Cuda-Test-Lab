@@ -8,7 +8,7 @@
             "name": "Convolution CUDA C++: Launch",
             "type": "cuda-gdb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Convolution/Convolution",
+            "program": "${workspaceFolder}/build/Convolution/ConvolutionMain",
             "breakOnLaunch": true,
             // "debuggerPath": "/usr/local/cuda-12.2/bin/cuda-gdb"
         },
