@@ -34,14 +34,14 @@ void cpu_par_convolution(float* image, float* kernel, float* out, uint32_t image
     threads.wait();
 }
 
-void par_convolution_loop(float* image, uint32_t image_size, float* kernel, uint32_t kernel_size, float* out,
-                          uint32_t qtd_loops) {
+void par_convolution_loop(float* image, uint32_t image_size, float* kernel, uint32_t kernel_size, float* out, uint32_t qtd_loops) {
     uint32_t padding = (kernel_size - 1) / 2;
-
+    float* image_aux = image;
     for (size_t i = 0; i < qtd_loops; i++) {
         for (size_t j = 0; j < 1; j++) {
             cpu_par_convolution(image, kernel, out, image_size, kernel_size);
-            memcpy(image, out, sizeof(float) * image_size * image_size);
+            // memcpy(image, out, sizeof(float) * image_size * image_size);
+            image_aux = out;
         }
     }
 
@@ -50,9 +50,9 @@ void par_convolution_loop(float* image, uint32_t image_size, float* kernel, uint
     // gpuErrchk(cudaDeviceSynchronize());
 }
 
-float* run_convolution_par(uint32_t n, uint32_t qtd_loops) {
-    uint32_t kernel_size = 3;
-    uint32_t padding = (kernel_size - 1) / 2;
+float* run_convolution_par(uint32_t n, uint32_t qtd_loops, uint32_t padding) {
+    uint32_t kernel_size = padding * 2 + 1;
+    // uint32_t padding = (kernel_size - 1) / 2;
     // uint32_t n = 32;
     uint32_t image_size = 32 * n + 2 * padding;
 

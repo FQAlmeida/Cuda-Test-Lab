@@ -14,11 +14,11 @@ int main(int argc, const char* argv[]) {
     if (argc > 1) {
         n = atoi(argv[1]);
     }
-    float* result_gpu = run_convolution(n, qtd_loops);
+    float* result_gpu = run_convolution(n, qtd_loops, padding);
     printf("DONE WITH GPU %p\n", result_gpu);
-    float* result_cpu_par = run_convolution_par(n, qtd_loops);
+    float* result_cpu_par = run_convolution_par(n, qtd_loops, padding);
     printf("DONE WITH CPU PAR %p\n", result_cpu_par);
-    float* result_cpu = run_convolution_serial(n, qtd_loops);
+    float* result_cpu = run_convolution_serial(n, qtd_loops, padding);
     printf("DONE WITH CPU %p\n", result_cpu);
     uint32_t line_width = 32 * n + 2 * padding;
     float MAX_ERROR = 1e-5;

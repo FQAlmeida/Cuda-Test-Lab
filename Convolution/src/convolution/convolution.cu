@@ -11,8 +11,8 @@
 #include "convolution_commom.hpp"
 #include "cuda_common.cuh"
 
-__device__ void convolute(float* image, float* kernel, float* sum_out, uint32_t image_size, uint32_t kernel_size,
-                          uint32_t x, uint32_t y, uint32_t padding, uint32_t line_size) {
+__device__ void convolute(float* image, float* kernel, float* sum_out, uint32_t image_size, uint32_t kernel_size, uint32_t x, uint32_t y,
+                          uint32_t padding, uint32_t line_size) {
     *sum_out = 0;
     for (uint32_t desloc_i = 0; desloc_i < kernel_size; desloc_i++) {
         for (uint32_t desloc_j = 0; desloc_j < kernel_size; desloc_j++) {
@@ -52,7 +52,6 @@ __global__ void par_convolution(float* image, float* kernel, float* out, uint32_
     // assert(sum > 0);
     // printf("%f\n", sum);
     out[gid] = sum / (float)(kernel_size * kernel_size);
-    __syncthreads();
 }
 
 __global__ void checker(float* image, float* image_out, uint32_t image_size) {
@@ -64,8 +63,7 @@ __global__ void checker(float* image, float* image_out, uint32_t image_size) {
     }
 }
 
-void convolution_loop(float* image, uint32_t image_size, float* kernel, uint32_t kernel_size, float* out,
-                      uint32_t qtd_loops) {
+void convolution_loop(float* image, uint32_t image_size, float* kernel, uint32_t kernel_size, float* out, uint32_t qtd_loops) {
     uint32_t padding = (kernel_size - 1) / 2;
     // TODO(Otavio): Create a better logic for grid and block dims size
     // Make it in a way that (image_size - 2 * padding) is ways divisible
@@ -84,13 +82,16 @@ void convolution_loop(float* image, uint32_t image_size, float* kernel, uint32_t
     gpuErrchk(cudaMalloc(&kernel_device, sizeof(float) * kernel_size * kernel_size));
     gpuErrchk(cudaMemcpy(kernel_device, kernel, kernel_size * kernel_size * sizeof(float), cudaMemcpyHostToDevice));
 
+    float* aux_image = image_in_device;
+
     for (size_t i = 0; i < qtd_loops; i++) {
         for (size_t j = 0; j < 1; j++) {
-            par_convolution<<<grid, block, sizeof(float) * kernel_size * kernel_size>>>(
-                image_in_device, kernel_device, image_out_device, image_size, kernel_size);
+            par_convolution<<<grid, block, sizeof(float) * kernel_size * kernel_size>>>(aux_image, kernel_device, image_out_device,
+                                                                                        image_size, kernel_size);
             gpuErrchk(cudaGetLastError());
-            gpuErrchk(cudaMemcpy(image_in_device, image_out_device, sizeof(float) * image_size * image_size,
-                                 cudaMemcpyDeviceToDevice));
+            // gpuErrchk(cudaMemcpy(image_in_device, image_out_device, sizeof(float) * image_size * image_size,
+            //                      cudaMemcpyDeviceToDevice));
+            aux_image = image_out_device;
         }
     }
 
@@ -110,9 +111,9 @@ void convolution_loop(float* image, uint32_t image_size, float* kernel, uint32_t
     gpuErrchk(cudaDeviceReset());
 }
 
-float* run_convolution(uint32_t n, uint32_t qtd_loops) {
-    uint32_t kernel_size = 3;
-    uint32_t padding = (kernel_size - 1) / 2;
+float* run_convolution(uint32_t n, uint32_t qtd_loops, uint32_t padding) {
+    // uint32_t padding = (kernel_size - 1) / 2;
+    uint32_t kernel_size = padding * 2 + 1;
     // uint32_t n = 32;
     uint32_t image_size = 32 * n + 2 * padding;
 

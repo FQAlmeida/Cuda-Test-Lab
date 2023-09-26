@@ -15,8 +15,8 @@ void serial_convolution(float* image, float* kernel, float* out, uint32_t image_
             float sum = 0;
             for (size_t i_desloc = 0; i_desloc < kernel_size; i_desloc++) {
                 for (size_t j_desloc = 0; j_desloc < kernel_size; j_desloc++) {
-                    sum += image[(j - padding + j_desloc) + (i - padding + i_desloc) * image_size] *
-                           kernel[i_desloc * kernel_size + j_desloc];
+                    sum +=
+                        image[(j - padding + j_desloc) + (i - padding + i_desloc) * image_size] * kernel[i_desloc * kernel_size + j_desloc];
                 }
             }
             out[j + i * image_size] = sum / (kernel_size * kernel_size);
@@ -39,9 +39,9 @@ void serial_convolution_loop(float* image, uint32_t image_size, float* kernel, u
     // gpuErrchk(cudaDeviceSynchronize());
 }
 
-float* run_convolution_serial(uint32_t n, uint32_t qtd_loops) {
-    uint32_t kernel_size = 3;
-    uint32_t padding = (kernel_size - 1) / 2;
+float* run_convolution_serial(uint32_t n, uint32_t qtd_loops, uint32_t padding) {
+    uint32_t kernel_size = padding * 2 + 1;
+    // uint32_t padding = (kernel_size - 1) / 2;
     // uint32_t n = 32;
     uint32_t image_size = 32 * n + 2 * padding;
 
