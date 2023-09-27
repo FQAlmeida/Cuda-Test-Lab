@@ -5,6 +5,27 @@
 #include "convolution/convolution_serial.hpp"
 
 static void CustomArguments(benchmark::internal::Benchmark* b) {
+    for (int i = 1; i <= 5; i += 1) {
+        for (int j = 1; j <= 1; j += 100) {
+            for (int k = 1; k <= 11; k++) {
+                b->Args({i, j, k});
+            }
+        }
+    }
+    for (int i = 1; i <= 5; i += 1) {
+        for (int j = 100; j <= 500; j += 100) {
+            for (int k = 1; k <= 11; k++) {
+                b->Args({i, j, k});
+            }
+        }
+    }
+    for (int i = 20; i <= 30; i += 10) {
+        for (int j = 1; j <= 1; j += 100) {
+            for (int k = 1; k <= 11; k++) {
+                b->Args({i, j, k});
+            }
+        }
+    }
     for (int i = 20; i <= 30; i += 10) {
         for (int j = 100; j <= 500; j += 100) {
             for (int k = 1; k <= 11; k++) {
@@ -19,14 +40,14 @@ static void BM_convolution_par(benchmark::State& state) {
         run_convolution(state.range(0), state.range(1), state.range(2));
     }
 }
-BENCHMARK(BM_convolution_par)->Iterations(3)->Apply(CustomArguments);
+BENCHMARK(BM_convolution_par)->Iterations(5)->Apply(CustomArguments);
 
 static void BM_convolution_cpu_par(benchmark::State& state) {
     for (auto _ : state) {
         run_convolution_par(state.range(0), state.range(1), state.range(2));
     }
 }
-BENCHMARK(BM_convolution_cpu_par)->Iterations(3)->Apply(CustomArguments);
+BENCHMARK(BM_convolution_cpu_par)->Iterations(5)->Apply(CustomArguments);
 
 static void BM_convolution_serial(benchmark::State& state) {
     for (auto _ : state) {
