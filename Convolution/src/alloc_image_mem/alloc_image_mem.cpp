@@ -1,6 +1,7 @@
 #include "alloc_image_mem.hpp"
 
 #include <assert.h>
+#include <string.h>
 
 #include <functional>
 #include <random>

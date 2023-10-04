@@ -2,10 +2,11 @@
 
 #include <stdio.h>
 
-
 void ThreadPool::start() {
     // Max # of threads the system supports
-    const uint32_t num_threads = std::max((int32_t)std::thread::hardware_concurrency() - 2, 1);
+    const uint32_t num_threads = std::max((int32_t)std::thread::hardware_concurrency(), 1);
+    // printf("%u\n", num_threads);
+    // const uint32_t num_threads = std::thread::hardware_concurrency();
     for (uint32_t ii = 0; ii < num_threads; ++ii) {
         threads.emplace_back(std::thread(&ThreadPool::thread_loop, this));
     }
@@ -22,13 +23,15 @@ void ThreadPool::thread_loop() {
             }
             job = jobs.front();
             jobs.pop();
+            if (jobs.empty()) {
+                end_mutex_condition.notify_one();
+            }
         }
         job();
     }
 }
 
-void ThreadPool::map_jobs(const std::function<void(uint32_t idx)>& job,
-                          std::ranges::iota_view<uint32_t, uint32_t> iter) {
+void ThreadPool::map_jobs(const std::function<void(uint32_t idx)>& job, std::ranges::iota_view<uint32_t, uint32_t> iter) {
     for (auto element : iter) {
         this->queue_job([element, job] { job(element); });
     }
@@ -55,8 +58,12 @@ bool ThreadPool::busy() {
 }
 
 void ThreadPool::wait() {
-    while (this->busy())
-        ;
+    {
+        std::unique_lock<std::mutex> lock(queue_mutex);
+        end_mutex_condition.wait(lock, [this] { return jobs.empty(); });
+    }
+    // while (this->busy())
+    //     ;
     this->stop();
 }
 

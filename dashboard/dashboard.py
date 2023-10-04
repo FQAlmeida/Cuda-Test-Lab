@@ -5,8 +5,6 @@ import plotly.express as px
 
 st.set_page_config(layout="wide")
 
-st.title("Hello")
-
 df = pl.read_csv("data/bench.csv")
 df = df.select(
     pl.col("name").str.split("/").list.get(0).alias("name"),

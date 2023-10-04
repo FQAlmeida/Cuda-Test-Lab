@@ -5,33 +5,17 @@
 #include "convolution/convolution_serial.hpp"
 
 static void CustomArguments(benchmark::internal::Benchmark* b) {
-    for (int i = 1; i <= 5; i += 1) {
-        for (int j = 1; j <= 1; j += 100) {
-            for (int k = 1; k <= 11; k++) {
-                b->Args({i, j, k});
-            }
-        }
+    for (int k = 1; k <= 11; k++) {
+        b->Args({10, 1, k});
     }
-    for (int i = 1; i <= 5; i += 1) {
-        for (int j = 100; j <= 500; j += 100) {
-            for (int k = 1; k <= 11; k++) {
-                b->Args({i, j, k});
-            }
-        }
+    for (int k = 1; k <= 11; k++) {
+        b->Args({10, 100, k});
     }
-    for (int i = 20; i <= 30; i += 10) {
-        for (int j = 1; j <= 1; j += 100) {
-            for (int k = 1; k <= 11; k++) {
-                b->Args({i, j, k});
-            }
-        }
+    for (int k = 1; k <= 11; k++) {
+        b->Args({50, 1, k});
     }
-    for (int i = 20; i <= 30; i += 10) {
-        for (int j = 100; j <= 500; j += 100) {
-            for (int k = 1; k <= 11; k++) {
-                b->Args({i, j, k});
-            }
-        }
+    for (int k = 1; k <= 11; k++) {
+        b->Args({50, 100, k});
     }
 }
 

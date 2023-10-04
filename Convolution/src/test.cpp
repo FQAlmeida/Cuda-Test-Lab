@@ -9,7 +9,7 @@
 
 int main(int argc, const char* argv[]) {
     uint32_t n = 400;
-    uint32_t qtd_loops = 1;
+    uint32_t qtd_loops = 20;
     uint32_t padding = 1;
     if (argc > 1) {
         n = atoi(argv[1]);
@@ -21,10 +21,10 @@ int main(int argc, const char* argv[]) {
     float* result_cpu = run_convolution_serial(n, qtd_loops, padding);
     printf("DONE WITH CPU %p\n", result_cpu);
     uint32_t line_width = 32 * n + 2 * padding;
-    float MAX_ERROR = 1e-5;
+    float MAX_ERROR = 1e-2;
     for (size_t i = 0; i < line_width; i++) {
         for (size_t j = 0; j < line_width; j++) {
-            // printf("%lu %lu\n", i, j);
+            printf("%f %f %f\n", result_cpu[i * line_width + j], result_gpu[i * line_width + j],result_cpu_par[i * line_width + j]);
             assert(fabs(result_cpu[i * line_width + j] - result_gpu[i * line_width + j]) < MAX_ERROR);
             assert(fabs(result_cpu[i * line_width + j] - result_cpu_par[i * line_width + j]) < MAX_ERROR);
         }

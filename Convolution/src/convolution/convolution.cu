@@ -77,22 +77,18 @@ void convolution_loop(float* image, uint32_t image_size, float* kernel, uint32_t
     gpuErrchk(cudaMemcpy(image_in_device, image, image_size * image_size * sizeof(float), cudaMemcpyHostToDevice));
 
     gpuErrchk(cudaMalloc(&image_out_device, sizeof(float) * image_size * image_size));
-    // cudaMemcpy(image_out_device, image_in_device, image_size * image_size * sizeof(float),
-    // cudaMemcpyDeviceToDevice);
+    cudaMemcpy(image_out_device, image_in_device, image_size * image_size * sizeof(float), cudaMemcpyDeviceToDevice);
+
     gpuErrchk(cudaMalloc(&kernel_device, sizeof(float) * kernel_size * kernel_size));
     gpuErrchk(cudaMemcpy(kernel_device, kernel, kernel_size * kernel_size * sizeof(float), cudaMemcpyHostToDevice));
 
     float* aux_image = image_in_device;
 
     for (size_t i = 0; i < qtd_loops; i++) {
-        for (size_t j = 0; j < 1; j++) {
-            par_convolution<<<grid, block, sizeof(float) * kernel_size * kernel_size>>>(aux_image, kernel_device, image_out_device,
-                                                                                        image_size, kernel_size);
-            gpuErrchk(cudaGetLastError());
-            // gpuErrchk(cudaMemcpy(image_in_device, image_out_device, sizeof(float) * image_size * image_size,
-            //                      cudaMemcpyDeviceToDevice));
-            aux_image = image_out_device;
-        }
+        par_convolution<<<grid, block, sizeof(float) * kernel_size * kernel_size>>>(aux_image, kernel_device, image_out_device, image_size,
+                                                                                    kernel_size);
+        gpuErrchk(cudaGetLastError());
+        aux_image = image_out_device;
     }
 
     gpuErrchk(cudaDeviceSynchronize());
@@ -122,6 +118,8 @@ float* run_convolution(uint32_t n, uint32_t qtd_loops, uint32_t padding) {
 
     float* image = alloc_image(image_size);
     float* image_out = alloc_image_out(image_size);
+    memcpy(image_out, image, image_size * image_size * sizeof(float));
+
     float* kernel = alloc_kernel(kernel_size);
 
     // save_matrix(image, image_size, image_size, "data/convolution_matrix.txt");

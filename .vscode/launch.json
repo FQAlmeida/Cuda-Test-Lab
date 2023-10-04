@@ -13,9 +13,11 @@
             // "debuggerPath": "/usr/local/cuda-12.2/bin/cuda-gdb"
         },
         {
-            "name": "CUDA C++: Attach",
+            "name": "Test Convolution CUDA C++: Launch",
             "type": "cuda-gdb",
-            "request": "attach"
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Convolution/ConvolutionTest",
+            "breakOnLaunch": true,
         }
     ]
 }

@@ -38,11 +38,9 @@ void par_convolution_loop(float* image, uint32_t image_size, float* kernel, uint
     uint32_t padding = (kernel_size - 1) / 2;
     float* image_aux = image;
     for (size_t i = 0; i < qtd_loops; i++) {
-        for (size_t j = 0; j < 1; j++) {
-            cpu_par_convolution(image, kernel, out, image_size, kernel_size);
-            // memcpy(image, out, sizeof(float) * image_size * image_size);
-            image_aux = out;
-        }
+        cpu_par_convolution(image_aux, kernel, out, image_size, kernel_size);
+        // memcpy(image, out, sizeof(float) * image_size * image_size);
+        image_aux = out;
     }
 
     // checker<<<1, 1>>>(image_in_device, image_out_device, image_size);
@@ -60,6 +58,7 @@ float* run_convolution_par(uint32_t n, uint32_t qtd_loops, uint32_t padding) {
 
     float* image = alloc_image(image_size);
     float* image_out = alloc_image_out(image_size);
+    memcpy(image_out, image, image_size * image_size * sizeof(float));
     float* kernel = alloc_kernel(kernel_size);
     // show_matrix(image, image_size, 15);
 
