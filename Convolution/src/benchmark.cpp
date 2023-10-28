@@ -12,10 +12,10 @@ static void CustomArguments(benchmark::internal::Benchmark* b) {
         b->Args({10, 20, k});
     }
     for (int k = 1; k <= 10; k++) {
-        b->Args({40, 1, k});
+        b->Args({100, 1, k});
     }
     for (int k = 1; k <= 10; k++) {
-        b->Args({40, 20, k});
+        b->Args({100, 20, k});
     }
 }
 

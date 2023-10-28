@@ -13,7 +13,6 @@ __global__ void vector_add(float* vector_a, float* vector_b, float* vector_out, 
     uint32_t tid = threadIdx.x + blockIdx.x * blockDim.x;
     if (tid < vector_size) {
         vector_out[tid] = vector_a[tid] + vector_b[tid] + 0.0f;
-        // printf("%d %.2f\n",tid, vector_out[tid]);
     }
 }
 
@@ -39,6 +38,7 @@ void run_vector_add() {
     cudaMalloc(&vector_c_device, sizeof(float) * vector_size);
 
     vector_add<<<grid, block>>>(vector_a_device, vector_b_device, vector_c_device, vector_size);
+    
     cudaError_t err = cudaGetLastError();
     cudaDeviceSynchronize();
 
@@ -46,15 +46,19 @@ void run_vector_add() {
         fprintf(stderr, "Failed to launch vectorAdd kernel (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+
     err = cudaMemcpy(vector_c, vector_c_device, sizeof(float) * vector_size, cudaMemcpyDeviceToHost);
+
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to copy vector C from device to host (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+
     for (size_t i = 0; i < vector_size; i++) {
         // printf("%.2f %.2f %.2f %.2f %.2f\n", vector_a[i], vector_b[i], vector_c[i], vector_a[i] + vector_b[i],
         //        vector_c[i] - vector_a[i] - vector_b[i]);
         assert(fabs(vector_c[i] - vector_a[i] - vector_b[i]) < 1e-5);
     }
+
     printf("Process Done!\n");
 }
